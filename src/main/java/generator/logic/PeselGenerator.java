@@ -12,10 +12,7 @@ public class PeselGenerator {
         int month = birthDate.getMonthValue();
         int day = birthDate.getDayOfMonth();
 
-        if (year >= 1800 && year <= 1899) month += 80;
-        else if (year >= 2000 && year <= 2099) month += 20;
-        else if (year >= 2100 && year <= 2199) month += 40;
-        else if (year >= 2200 && year <= 2299) month += 60;
+        if (year >= 2000) month += 20;
 
         StringBuilder pesel = new StringBuilder();
 
