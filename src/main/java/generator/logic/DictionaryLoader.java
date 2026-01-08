@@ -5,13 +5,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DictionaryLoader {
 
     /**
      * Wczytuje plik CSV z wagami (Format: IMIĘ, PŁEĆ, LICZBA).
-     * Zwraca inteligentny słownik WeightedDictionary.
+     * Separator: przecinek
      */
     public WeightedDictionary loadWeightedNames(String fileName) {
         WeightedDictionary dictionary = new WeightedDictionary();
@@ -23,29 +25,34 @@ public class DictionaryLoader {
 
             try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
                 String line;
-                br.readLine();
 
                 while ((line = br.readLine()) != null) {
+                    if (line.trim().isEmpty()) continue;
+
                     String[] values = line.split(",");
 
                     if (values.length < 3) continue;
 
                     String name = values[0].trim();
-                    long count = Long.parseLong(values[2].trim());
-                    dictionary.addEntry(name, count);
+
+                    try {
+                        String countStr = values[2].trim().replace(" ", "").replace("\u00A0", "");
+                        long count = Long.parseLong(countStr);
+                        dictionary.addEntry(name, count);
+                    } catch (NumberFormatException e) {
+                    }
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
-            System.err.println("Błąd podczas wczytywania pliku: " + fileName);
         }
-
         return dictionary;
     }
 
     /**
-     * Wczytuje plik CSV z miastami i ich populacją oraz plik CSV z nazwiskami i ich popularnością.
-     * Format: MIASTO,POPULACJA
+     * Wczytuje plik CSV z miastami i ich populacją ORAZ plik CSV z nazwiskami.
+     * Format: NAZWA, WAGA
+     * Separator: przecinek
      */
     public WeightedDictionary loadWeightedData(String fileName) {
         WeightedDictionary dictionary = new WeightedDictionary();
@@ -55,19 +62,22 @@ public class DictionaryLoader {
 
             try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
                 String line;
-                br.readLine(); // Pomijamy nagłówek
 
                 while ((line = br.readLine()) != null) {
+                    if (line.trim().isEmpty()) continue;
+
                     String[] values = line.split(",");
 
-                    // Zabezpieczenie na wypadek pustych linii
                     if (values.length < 2) continue;
 
-                    String city = values[0].trim();
-                    // Parsujemy drugą kolumnę jako wagę (populację)
-                    long population = Long.parseLong(values[1].trim());
+                    String key = values[0].trim();
 
-                    dictionary.addEntry(city, population);
+                    try {
+                        String weightStr = values[1].trim().replace(" ", "").replace("\u00A0", "");
+                        long weight = Long.parseLong(weightStr);
+                        dictionary.addEntry(key, weight);
+                    } catch (NumberFormatException e) {
+                    }
                 }
             }
         } catch (Exception e) {
@@ -77,8 +87,46 @@ public class DictionaryLoader {
     }
 
     /**
-     * Metoda dla zwykłych list (np. ulice, adres), które nie mają wag w CSV.
-     * Zwraca zwykłą List<String>.
+     * Format: MIASTO; WOJEWÓDZTWO; LICZBA
+     * Separator: ŚREDNIK (;)
+     */
+    public WeightedDictionary loadWeightedCities(String fileName) {
+        WeightedDictionary dictionary = new WeightedDictionary();
+
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(fileName)) {
+            if (inputStream == null) {
+                throw new IllegalArgumentException("Plik nie znaleziony: " + fileName);
+            }
+
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+                String line;
+
+                while ((line = br.readLine()) != null) {
+                    if (line.trim().isEmpty()) continue;
+
+                    String[] values = line.split(";");
+
+                    if (values.length >= 3) {
+                        String cityName = values[0].trim();
+
+                        try {
+                            String populationStr = values[2].trim().replace(" ", "").replace("\u00A0", "");
+                            long population = Long.parseLong(populationStr);
+
+                            dictionary.addEntry(cityName, population);
+                        } catch (NumberFormatException e) {
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return dictionary;
+    }
+
+    /**
+     * Metoda dla zwykłych list (ulice.txt, imiona_zenskie.txt).
      */
     public List<String> loadSimpleList(String fileName) {
         List<String> list = new ArrayList<>();
@@ -97,5 +145,35 @@ public class DictionaryLoader {
             e.printStackTrace();
         }
         return list;
+    }
+
+    /**
+     * Mapuje Miasto -> Województwo
+     */
+    public Map<String, String> loadCityVoivodeshipMap(String fileName) {
+        Map<String, String> map = new HashMap<>();
+
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(fileName)) {
+            if (inputStream == null) throw new IllegalArgumentException("Plik nie znaleziony: " + fileName);
+
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    if (line.trim().isEmpty()) continue;
+
+                    String[] values = line.split(";"); // Średnik!
+
+                    if (values.length >= 2) {
+                        String city = values[0].trim();
+                        String voivodeship = values[1].trim();
+
+                        map.put(city, voivodeship);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return map;
     }
 }
