@@ -12,7 +12,7 @@ import java.util.Map;
 public class DictionaryLoader {
 
     /**
-     * Wczytuje plik CSV z wagami (Format: IMIĘ, PŁEĆ, LICZBA).
+     * Wczytuje plik csv z wagami (Format: IMIĘ, PŁEĆ, LICZBA).
      * Separator: przecinek
      */
     public WeightedDictionary loadWeightedNames(String fileName) {
@@ -50,7 +50,7 @@ public class DictionaryLoader {
     }
 
     /**
-     * Wczytuje plik CSV z miastami i ich populacją ORAZ plik CSV z nazwiskami.
+     * Wczytuje plik CSV z miastami i ich populacją oraz plik CSV z nazwiskami.
      * Format: NAZWA, WAGA
      * Separator: przecinek
      */
@@ -88,7 +88,7 @@ public class DictionaryLoader {
 
     /**
      * Format: MIASTO; WOJEWÓDZTWO; LICZBA
-     * Separator: ŚREDNIK (;)
+     * Separator: średnik
      */
     public WeightedDictionary loadWeightedCities(String fileName) {
         WeightedDictionary dictionary = new WeightedDictionary();
