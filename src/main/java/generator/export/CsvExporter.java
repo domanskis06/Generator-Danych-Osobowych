@@ -16,7 +16,7 @@ public class CsvExporter implements DataExporter {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    public void exportData(List<Person> data, String filePath) throws IOException {
+    public void export(List<Person> data, String filePath) throws IOException {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, StandardCharsets.UTF_8))) {
 
 
@@ -28,7 +28,7 @@ public class CsvExporter implements DataExporter {
 
                 String city = (person.getAddress() != null) ? person.getAddress().getCity() : "";
                 String street = (person.getAddress() != null) ? person.getAddress().getStreet() : "";
-                String postalCode = (person.getAddress() != null) ? person.getAddress().getPostalCode() : "";
+                String postalCode = (person.getAddress() != null) ? person.getAddress().getZipCode() : "";
 
                 String phone = (person.getContact() != null) ? person.getContact().getPhoneNumber() : "";
                 String email = (person.getContact() != null) ? person.getContact().getEmail() : "";

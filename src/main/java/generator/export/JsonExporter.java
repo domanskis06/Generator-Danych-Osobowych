@@ -8,10 +8,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * Implementacja eksportu do formatu JSON dostosowana do pełnej struktury klasy Person,
- * włączając zagnieżdżone obiekty Address oraz Contact.
- */
 public class JsonExporter implements DataExporter {
 
     @Override

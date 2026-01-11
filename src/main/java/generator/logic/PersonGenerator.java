@@ -1,6 +1,7 @@
 package main.java.generator.logic;
 
 import main.java.generator.model.Address;
+import main.java.generator.model.Contact;
 import main.java.generator.model.Gender;
 import main.java.generator.model.Person;
 
@@ -28,8 +29,6 @@ public class PersonGenerator implements Generator<Person> {
     public PersonGenerator() {
         this.peselGenerator = new PeselGenerator();
         this.random = new Random();
-
-        System.out.println("Inicjalizacja generatora.");
         loadDictionaries();
     }
 
@@ -104,6 +103,11 @@ public class PersonGenerator implements Generator<Person> {
         address.setZipCode(String.format("%02d-%03d", random.nextInt(100), random.nextInt(1000)));
 
         person.setAddress(address);
+
+        Contact contact = new Contact();
+        contact.setEmail(person.getFirstName().toLowerCase() + "." + person.getLastName().toLowerCase() + "@gmail.com");
+        contact.setPhoneNumber("+48" + String.valueOf(100000000 + random.nextInt(900000000)));
+        person.setContact(contact);
 
         return person;
     }
