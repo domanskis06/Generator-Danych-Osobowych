@@ -4,8 +4,6 @@ import main.java.generator.model.Gender;
 import java.time.LocalDate;
 import java.util.Random;
 
-import static main.java.generator.model.Gender.MALE;
-
 public class PeselGenerator {
 
     private final Random random = new Random();
@@ -15,22 +13,26 @@ public class PeselGenerator {
         int month = birthDate.getMonthValue();
         int day = birthDate.getDayOfMonth();
 
-        if (year >= 2000) month += 20;
+        if (year >= 2000) {
+            month += 20;
+        }
 
         StringBuilder pesel = new StringBuilder();
 
         pesel.append(String.format("%02d", year % 100));
         pesel.append(String.format("%02d", month));
         pesel.append(String.format("%02d", day));
+
         pesel.append(String.format("%03d", random.nextInt(1000)));
 
-        int genderDigit = random.nextInt(5) * 2 + (gender==MALE ? 1 : 0);
+        int genderDigit = random.nextInt(5) * 2 + (gender == Gender.MALE ? 1 : 0);
         pesel.append(genderDigit);
 
         pesel.append(calculateChecksum(pesel.toString()));
 
         return pesel.toString();
     }
+
     private int calculateChecksum(String pesel10) {
         int[] weights = {1, 3, 7, 9, 1, 3, 7, 9, 1, 3};
         int sum = 0;

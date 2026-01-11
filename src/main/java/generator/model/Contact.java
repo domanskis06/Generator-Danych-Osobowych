@@ -1,8 +1,5 @@
 package main.java.generator.model;
 
-/**
- * Klasa reprezentująca dane kontaktowe generowanej osoby.
- */
 public class Contact {
     private String email;
     private String phoneNumber;
