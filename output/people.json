@@ -1,0 +1,202 @@
+[
+  {
+    "firstName": "STANISŁAW",
+    "lastName": "SKUBALA",
+    "birthDate": "1987-03-23",
+    "gender": "MALE",
+    "pesel": "87032339773",
+    "nip": "",
+    "idCardNumber": "",
+    "address": {
+      "street": "Czesława Miłosza",
+      "houseNumber": "141",
+      "city": "Katowice",
+      "zipCode": "74-971",
+      "voivodeship": "śląskie"
+    },
+    "contact": {
+      "email": "stanisław.skubala@gmail.com",
+      "phoneNumber": "+48628726785"
+    }
+  },
+  {
+    "firstName": "OLIVIER",
+    "lastName": "BILKO",
+    "birthDate": "1959-12-29",
+    "gender": "MALE",
+    "pesel": "59122974610",
+    "nip": "",
+    "idCardNumber": "",
+    "address": {
+      "street": "Wspólna",
+      "houseNumber": "148",
+      "city": "Hajnówka",
+      "zipCode": "41-530",
+      "voivodeship": "podlaskie"
+    },
+    "contact": {
+      "email": "olivier.bilko@gmail.com",
+      "phoneNumber": "+48129507600"
+    }
+  },
+  {
+    "firstName": "JEREMI",
+    "lastName": "TROCIŃSKI",
+    "birthDate": "1956-04-22",
+    "gender": "MALE",
+    "pesel": "56042225097",
+    "nip": "",
+    "idCardNumber": "",
+    "address": {
+      "street": "Sosnowa",
+      "houseNumber": "58",
+      "city": "Gdańsk",
+      "zipCode": "09-872",
+      "voivodeship": "pomorskie"
+    },
+    "contact": {
+      "email": "jeremi.trociński@gmail.com",
+      "phoneNumber": "+48811184492"
+    }
+  },
+  {
+    "firstName": "AMELIA",
+    "lastName": "PASZKOWSKA",
+    "birthDate": "2001-09-24",
+    "gender": "FEMALE",
+    "pesel": "01292448022",
+    "nip": "",
+    "idCardNumber": "",
+    "address": {
+      "street": "Sosnowa",
+      "houseNumber": "150",
+      "city": "Mysłowice",
+      "zipCode": "10-622",
+      "voivodeship": "śląskie"
+    },
+    "contact": {
+      "email": "amelia.paszkowska@gmail.com",
+      "phoneNumber": "+48823566666"
+    }
+  },
+  {
+    "firstName": "OKSANA",
+    "lastName": "SZYMAŃCZYK",
+    "birthDate": "2004-12-16",
+    "gender": "FEMALE",
+    "pesel": "04321647306",
+    "nip": "",
+    "idCardNumber": "",
+    "address": {
+      "street": "Konstantego Jelskiego",
+      "houseNumber": "111",
+      "city": "Bytom",
+      "zipCode": "61-652",
+      "voivodeship": "śląskie"
+    },
+    "contact": {
+      "email": "oksana.szymańczyk@gmail.com",
+      "phoneNumber": "+48870714086"
+    }
+  },
+  {
+    "firstName": "JOANNA",
+    "lastName": "WOJEWODA",
+    "birthDate": "1964-01-19",
+    "gender": "FEMALE",
+    "pesel": "64011956525",
+    "nip": "",
+    "idCardNumber": "",
+    "address": {
+      "street": "Lawendowa",
+      "houseNumber": "150",
+      "city": "Żory",
+      "zipCode": "94-884",
+      "voivodeship": "śląskie"
+    },
+    "contact": {
+      "email": "joanna.wojewoda@gmail.com",
+      "phoneNumber": "+48217761835"
+    }
+  },
+  {
+    "firstName": "IDA",
+    "lastName": "KIDOŃ",
+    "birthDate": "1979-06-05",
+    "gender": "FEMALE",
+    "pesel": "79060557283",
+    "nip": "",
+    "idCardNumber": "",
+    "address": {
+      "street": "Bukowa",
+      "houseNumber": "55",
+      "city": "Poznań",
+      "zipCode": "24-448",
+      "voivodeship": "wielkopolskie"
+    },
+    "contact": {
+      "email": "ida.kidoń@gmail.com",
+      "phoneNumber": "+48315333861"
+    }
+  },
+  {
+    "firstName": "TADEUSZ",
+    "lastName": "MIELCZAREK",
+    "birthDate": "1992-06-16",
+    "gender": "MALE",
+    "pesel": "92061613633",
+    "nip": "",
+    "idCardNumber": "",
+    "address": {
+      "street": "Komuny Paryskiej",
+      "houseNumber": "41",
+      "city": "Warszawa",
+      "zipCode": "97-198",
+      "voivodeship": "mazowieckie"
+    },
+    "contact": {
+      "email": "tadeusz.mielczarek@gmail.com",
+      "phoneNumber": "+48567073764"
+    }
+  },
+  {
+    "firstName": "DARYA",
+    "lastName": "MAZURKIEWICZ",
+    "birthDate": "1979-09-24",
+    "gender": "FEMALE",
+    "pesel": "79092441943",
+    "nip": "",
+    "idCardNumber": "",
+    "address": {
+      "street": "Pogodna",
+      "houseNumber": "101",
+      "city": "Bytom",
+      "zipCode": "08-511",
+      "voivodeship": "śląskie"
+    },
+    "contact": {
+      "email": "darya.mazurkiewicz@gmail.com",
+      "phoneNumber": "+48237901111"
+    }
+  },
+  {
+    "firstName": "BARTOSZ",
+    "lastName": "JASIKOWSKI",
+    "birthDate": "1976-04-03",
+    "gender": "MALE",
+    "pesel": "76040377015",
+    "nip": "",
+    "idCardNumber": "",
+    "address": {
+      "street": "Kasztanowa",
+      "houseNumber": "106",
+      "city": "Kostrzyn",
+      "zipCode": "01-181",
+      "voivodeship": "wielkopolskie"
+    },
+    "contact": {
+      "email": "bartosz.jasikowski@gmail.com",
+      "phoneNumber": "+48663557490"
+    }
+  }
+]
