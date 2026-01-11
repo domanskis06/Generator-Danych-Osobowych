@@ -5,7 +5,9 @@ import main.java.generator.export.JsonExporter;
 import main.java.generator.export.SqlExporter;
 import main.java.generator.logic.PersonGenerator;
 import main.java.generator.model.Person;
-
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,24 +34,32 @@ public class App {
             printPersonDetails(i, p);
         }
 
+        String outputFolder = "output";
+
+        try {
+            Files.createDirectories(Paths.get(outputFolder));
+        } catch (IOException e) {
+            System.err.println("Nie udało się stworzyć folderu eksportu: " + e.getMessage());
+            return;
+        }
         try {
             System.out.println("Eksportowanie danych do CSV");
             CsvExporter exporter = new CsvExporter();
-            exporter.export(people, "people.csv");
+            exporter.export(people, outputFolder + File.separator + "people.csv");
         } catch (IOException e) {
             System.err.println("Błąd eksportu: " + e.getMessage());
         }
         try {
             System.out.println("Eksportowanie danych do JSON");
             JsonExporter exporter = new JsonExporter();
-            exporter.export(people, "people.json");
+            exporter.export(people, outputFolder + File.separator + "people.json");
         } catch (IOException e) {
             System.err.println("Błąd eksportu: " + e.getMessage());
         }
         try {
             System.out.println("Eksportowanie danych do sql");
             SqlExporter exporter = new SqlExporter();
-            exporter.export(people, "people.sql");
+            exporter.export(people, outputFolder + File.separator + "people.sql");
         } catch (IOException e) {
             System.err.println("Błąd eksportu: " + e.getMessage());
         }
