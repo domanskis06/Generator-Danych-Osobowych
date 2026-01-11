@@ -1,13 +1,16 @@
 package main.java.generator.logic;
 
+import main.java.generator.model.Gender;
 import java.time.LocalDate;
 import java.util.Random;
+
+import static main.java.generator.model.Gender.MALE;
 
 public class PeselGenerator {
 
     private final Random random = new Random();
 
-    public String generate(LocalDate birthDate, boolean isMale) {
+    public String generate(LocalDate birthDate, Gender gender) {
         int year = birthDate.getYear();
         int month = birthDate.getMonthValue();
         int day = birthDate.getDayOfMonth();
@@ -21,7 +24,7 @@ public class PeselGenerator {
         pesel.append(String.format("%02d", day));
         pesel.append(String.format("%03d", random.nextInt(1000)));
 
-        int genderDigit = random.nextInt(5) * 2 + (isMale ? 1 : 0);
+        int genderDigit = random.nextInt(5) * 2 + (gender==MALE ? 1 : 0);
         pesel.append(genderDigit);
 
         pesel.append(calculateChecksum(pesel.toString()));
