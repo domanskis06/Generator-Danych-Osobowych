@@ -101,7 +101,6 @@ public class App {
         System.out.println("Kontakt:");
         System.out.println("   Nr telefonu:   " + p.getContact().getPhoneNumber());
         System.out.println("   Email:         " + p.getContact().getEmail());
-
         System.out.println("\n");
     }
 }
