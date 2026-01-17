@@ -13,6 +13,7 @@ import java.util.Random;
 public class PersonGenerator implements Generator<Person> {
 
     private final PeselGenerator peselGenerator;
+    private final EmailGenerator emailGenerator;
     private final Random random;
 
     private WeightedDictionary maleNames;
@@ -29,6 +30,7 @@ public class PersonGenerator implements Generator<Person> {
 
     public PersonGenerator() {
         this.peselGenerator = new PeselGenerator();
+        this.emailGenerator = new EmailGenerator();
         this.random = new Random();
         loadDictionaries();
     }
@@ -113,7 +115,8 @@ public class PersonGenerator implements Generator<Person> {
         person.setAddress(address);
 
         Contact contact = new Contact();
-        contact.setEmail(person.getFirstName().toLowerCase() + "." + person.getLastName().toLowerCase() + "@gmail.com");
+        String generatedEmail = emailGenerator.generate(person);
+        contact.setEmail(generatedEmail);
         contact.setPhoneNumber("+48" + String.valueOf(100000000 + random.nextInt(900000000)));
         person.setContact(contact);
 
