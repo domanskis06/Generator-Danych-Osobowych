@@ -26,6 +26,7 @@ public class PersonGenerator implements Generator<Person> {
     private Map<String, String> cityToVoivodeship;
     private List<String> streets;
     private Map<String, List<String>> voivodeshipToZipCodes;
+    private List<String> mobilePrefixes;
 
 
     public PersonGenerator() {
@@ -50,6 +51,7 @@ public class PersonGenerator implements Generator<Person> {
 
         this.streets = loader.loadSimpleList("ulice.csv");
         this.voivodeshipToZipCodes = loader.loadZipCodesMap("kody_pocztowe.csv");
+        this.mobilePrefixes = loader.loadSimpleList("numery_telefonow.txt");
     }
 
     @Override
@@ -119,6 +121,15 @@ public class PersonGenerator implements Generator<Person> {
         contact.setEmail(generatedEmail);
         contact.setPhoneNumber("+48" + String.valueOf(100000000 + random.nextInt(900000000)));
         person.setContact(contact);
+
+        String prefix = "500";
+        if (!mobilePrefixes.isEmpty()) {
+            prefix = mobilePrefixes.get(random.nextInt(mobilePrefixes.size()));
+        }
+
+        String suffix = String.format("%06d", random.nextInt(1000000));
+
+        contact.setPhoneNumber("+48 " + prefix + suffix);
 
         return person;
     }
