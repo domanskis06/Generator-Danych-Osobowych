@@ -122,13 +122,48 @@ public class DictionaryLoader {
                 while ((line = br.readLine()) != null) {
                     if (line.trim().isEmpty()) continue;
 
-                    String[] values = line.split(";"); // Średnik!
+                    String[] values = line.split(",");
 
                     if (values.length >= 2) {
                         String city = values[0].trim();
                         String voivodeship = values[1].trim();
 
                         map.put(city, voivodeship);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return map;
+    }
+
+    /**
+     * Wczytuje kody pocztowe i grupuje je po województwach.
+     * Zwraca mapę: Województwo -> Lista kodów
+     */
+    public Map<String, List<String>> loadZipCodesMap(String fileName) {
+        Map<String, List<String>> map = new HashMap<>();
+
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(fileName)) {
+            if (inputStream == null) throw new IllegalArgumentException("Plik nie znaleziony: " + fileName);
+
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+                String line;
+                br.readLine();
+
+                while ((line = br.readLine()) != null) {
+                    if (line.trim().isEmpty()) continue;
+
+                    String[] values = line.split(",");
+
+                    if (values.length >= 2) {
+                        String zipCode = values[0].trim();
+                        String voivodeship = values[1].trim();
+
+                        map.putIfAbsent(voivodeship, new ArrayList<>());
+
+                        map.get(voivodeship).add(zipCode);
                     }
                 }
             }
