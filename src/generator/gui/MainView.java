@@ -23,7 +23,7 @@ public class MainView extends JFrame {
     private void initComponents() {
         setLayout(new BorderLayout(10, 10));
 
-        // Panel górny - sterowanie
+
         JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         controlPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
@@ -37,7 +37,7 @@ public class MainView extends JFrame {
 
         add(controlPanel, BorderLayout.NORTH);
 
-        // Panel centralny - logi/podgląd
+
         logArea = new JTextArea();
         logArea.setEditable(false);
         logArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
@@ -46,7 +46,7 @@ public class MainView extends JFrame {
 
         add(scrollPane, BorderLayout.CENTER);
 
-        // Panel dolny - eksport
+
         JPanel exportPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         exportPanel.setBorder(BorderFactory.createTitledBorder("Eksport danych"));
 
@@ -54,7 +54,7 @@ public class MainView extends JFrame {
         exportJsonButton = new JButton("Zapisz do JSON");
         exportSqlButton = new JButton("Zapisz do SQL");
 
-        // Domyślnie wyłączone, dopóki nie wygenerujemy danych
+
         enableExportButtons(false);
 
         exportPanel.add(exportCsvButton);
@@ -75,7 +75,7 @@ public class MainView extends JFrame {
         logArea.setCaretPosition(logArea.getDocument().getLength());
     }
 
-    // Gettery
+
     public JTextField getCountField() { return countField; }
     public JButton getGenerateButton() { return generateButton; }
     public JButton getExportCsvButton() { return exportCsvButton; }

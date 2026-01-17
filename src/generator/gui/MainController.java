@@ -45,7 +45,7 @@ public class MainController {
 
             view.appendLog("Rozpoczynam generowanie " + count + " osób...");
 
-            // Generowanie danych
+
             generatedPeople.clear();
             for (int i = 0; i < count; i++) {
                 generatedPeople.add(personGenerator.generate());
