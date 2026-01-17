@@ -25,6 +25,9 @@ public class MainView extends JFrame {
     private JButton exportJsonButton;
     private JButton exportSqlButton;
 
+    private JCheckBox noiseCheckbox;
+    private JSlider noiseSlider;
+
     public MainView() {
         setTitle("Generator Danych Osobowych 2025");
         setSize(1300, 900);
@@ -102,6 +105,27 @@ public class MainView extends JFrame {
         addCheckbox(sidePanel, "Kod Pocztowy", false);
         addCheckbox(sidePanel, "Telefon", true);
         addCheckbox(sidePanel, "Email", true);
+
+        JLabel noiseLabel = new JLabel("Poziom błędów: 0%");
+        noiseLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        noiseLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        sidePanel.add(noiseLabel);
+
+        noiseSlider = new JSlider(0, 50, 0);
+        noiseSlider.setBackground(new Color(240, 240, 245));
+        noiseSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
+        noiseSlider.setPreferredSize(new Dimension(200, 40));
+
+        noiseSlider.setMajorTickSpacing(25);
+        noiseSlider.setMinorTickSpacing(5);
+        noiseSlider.setPaintTicks(true);
+
+        noiseSlider.addChangeListener(e -> {
+            noiseLabel.setText("Poziom błędów: " + noiseSlider.getValue() + "%");
+        });
+
+        sidePanel.add(noiseSlider);
+        sidePanel.add(Box.createRigidArea(new Dimension(0, 20)));
 
         sidePanel.add(Box.createRigidArea(new Dimension(0, 20)));
 
@@ -213,4 +237,5 @@ public class MainView extends JFrame {
     public JButton getExportCsvButton() { return exportCsvButton; }
     public JButton getExportJsonButton() { return exportJsonButton; }
     public JButton getExportSqlButton() { return exportSqlButton; }
+    public JSlider getNoiseSlider() { return noiseSlider; }
 }

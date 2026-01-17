@@ -3,6 +3,7 @@ package main.java.generator.gui;
 import main.java.generator.export.CsvExporter;
 import main.java.generator.export.JsonExporter;
 import main.java.generator.export.SqlExporter;
+import main.java.generator.logic.DataCorruptor;
 import main.java.generator.logic.PersonGenerator;
 import main.java.generator.model.Person;
 import main.java.generator.model.Gender;
@@ -20,11 +21,13 @@ public class MainController {
     private final MainView view;
     private final PersonGenerator personGenerator;
     private final List<Person> generatedPeople;
+    private final DataCorruptor dataCorruptor;
 
     public MainController(MainView view) {
         this.view = view;
         this.personGenerator = new PersonGenerator();
         this.generatedPeople = new ArrayList<>();
+        this.dataCorruptor = new DataCorruptor();
 
         initListeners();
         view.setVisible(true);
@@ -83,7 +86,13 @@ public class MainController {
                     boolean genderOk = (targetGender == null) || (p.getGender() == targetGender);
 
                     if (ageOk && genderOk) {
-                        generatedPeople.add(p);
+
+                        int noiseValue = view.getNoiseSlider().getValue();
+
+                        if (noiseValue > 0) {
+                            double chance = noiseValue / 100.0;
+                            dataCorruptor.corrupt(p, chance);
+                        }
 
                         Object[] rowData = new Object[activeColumns.size()];
 
@@ -91,6 +100,8 @@ public class MainController {
                             String colName = activeColumns.get(i);
                             rowData[i] = getPersonValue(p, colName);
                         }
+
+                        generatedPeople.add(p);
 
                         view.addRowToTable(rowData);
                     }
