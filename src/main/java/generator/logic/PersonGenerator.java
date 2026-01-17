@@ -36,13 +36,13 @@ public class PersonGenerator implements Generator<Person> {
     private void loadDictionaries() {
         DictionaryLoader loader = new DictionaryLoader();
 
-        this.maleNames = loader.loadWeightedNames("imiona_meskie.csv");
-        this.femaleNames = loader.loadWeightedNames("imiona_zenskie.csv");
+        this.maleNames = loader.loadWeightedData3cols("imiona_meskie.csv");
+        this.femaleNames = loader.loadWeightedData3cols("imiona_zenskie.csv");
 
         this.maleSurnames = loader.loadWeightedData("nazwiska_meskie.csv");
         this.femaleSurnames = loader.loadWeightedData("nazwiska_zenskie.csv");
 
-        this.cities = loader.loadWeightedCities("miasta.csv");
+        this.cities = loader.loadWeightedData3cols("miasta.csv");
         this.cityToVoivodeship = loader.loadCityVoivodeshipMap("miasta.csv");
 
         this.streets = loader.loadSimpleList("ulice.csv");
