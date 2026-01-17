@@ -1,83 +1,101 @@
 package main.java.generator.export;
 
 import main.java.generator.model.Person;
-import main.java.generator.model.Address;
-import main.java.generator.model.Contact;
-
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
 public class SqlExporter implements DataExporter {
 
     @Override
-    public void export(List<Person> people, String filePath) throws IOException {
+    public void export(List<Person> people, String filePath, List<String> columns) throws IOException {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
 
-            writer.write("CREATE TABLE IF NOT EXISTS people (");
-            writer.newLine();
-            writer.write("    id INT AUTO_INCREMENT PRIMARY KEY,");
-            writer.newLine();
-            writer.write("    first_name VARCHAR(50),");
-            writer.newLine();
-            writer.write("    last_name VARCHAR(50),");
-            writer.newLine();
-            writer.write("    birth_date DATE,");
-            writer.newLine();
-            writer.write("    gender VARCHAR(10),");
-            writer.newLine();
-            writer.write("    pesel VARCHAR(11),");
-            writer.newLine();
-            writer.write("    nip VARCHAR(10),");
-            writer.newLine();
-            writer.write("    id_card_number VARCHAR(20),");
-            writer.newLine();
-            writer.write("    city VARCHAR(100),");
-            writer.newLine();
-            writer.write("    street VARCHAR(100),");
-            writer.newLine();
-            writer.write("    email VARCHAR(100),");
-            writer.newLine();
-            writer.write("    phone VARCHAR(20)");
-            writer.newLine();
-            writer.write(");");
-            writer.newLine();
-            writer.newLine();
+            List<String> sqlColumns = new ArrayList<>();
+            for (String col : columns) {
+                sqlColumns.add(mapToSqlColumn(col));
+            }
 
-            for (Person person : people) {
-                Address address = person.getAddress();
-                Contact contact = person.getContact();
+            writer.write("CREATE TABLE IF NOT EXISTS exported_people (");
+            writer.newLine();
+            writer.write("    id INT AUTO_INCREMENT PRIMARY KEY");
 
-                String birthDate = (person.getBirthDate() != null) ? "'" + person.getBirthDate() + "'" : "NULL";
-                String nip = (person.getNip() != null) ? "'" + escapeSql(person.getNip()) + "'" : "NULL";
-                String idCard = (person.getIdCardNumber() != null) ? "'" + escapeSql(person.getIdCardNumber()) + "'" : "NULL";
-                String city = (address != null && address.getCity() != null) ? "'" + escapeSql(address.getCity()) + "'" : "NULL";
-                String street = (address != null && address.getStreet() != null) ? "'" + escapeSql(address.getStreet()) + "'" : "NULL";
-                String email = (contact != null && contact.getEmail() != null) ? "'" + escapeSql(contact.getEmail()) + "'" : "NULL";
-                String phone = (contact != null && contact.getPhoneNumber() != null) ? "'" + escapeSql(contact.getPhoneNumber()) + "'" : "NULL";
+            for (String sqlCol : sqlColumns) {
+                writer.write(",");
+                writer.newLine();
+                writer.write("    " + sqlCol + " VARCHAR(255)");
+            }
+            writer.write("\n);\n\n");
 
-                String sql = String.format(
-                        "INSERT INTO people (first_name, last_name, birth_date, gender, pesel, city, street, email, phone) VALUES ('%s', '%s', %s, '%s', '%s', %s, %s, %s, %s);",
-                        escapeSql(person.getFirstName()),
-                        escapeSql(person.getLastName()),
-                        birthDate,
-                        person.getGender(),
-                        person.getPesel(),
-                        nip,
-                        idCard,
-                        city,
-                        street,
-                        email,
-                        phone
-                );
+            for (Person p : people) {
+                StringBuilder sql = new StringBuilder("INSERT INTO exported_people (");
 
-                writer.write(sql);
+                StringJoiner colJoiner = new StringJoiner(", ");
+                for (String sqlCol : sqlColumns) {
+                    colJoiner.add(sqlCol);
+                }
+                sql.append(colJoiner.toString());
+
+                sql.append(") VALUES (");
+
+                StringJoiner valJoiner = new StringJoiner(", ");
+                for (String col : columns) {
+                    String value = getValueForColumn(p, col);
+                    valJoiner.add("'" + escapeSql(value) + "'");
+                }
+                sql.append(valJoiner.toString());
+                sql.append(");");
+
+                writer.write(sql.toString());
                 writer.newLine();
             }
         }
     }
 
+    private String mapToSqlColumn(String guiColumn) {
+        switch (guiColumn) {
+            case "Imię": return "first_name";
+            case "Nazwisko": return "last_name";
+            case "Płeć": return "gender";
+            case "Wiek": return "age";
+            case "Data Urodzenia": return "birth_date";
+            case "PESEL": return "pesel";
+            case "NIP": return "nip";
+            case "Nr Dowodu": return "id_card";
+            case "Miasto": return "city";
+            case "Województwo": return "voivodeship";
+            case "Ulica": return "street_address";
+            case "Kod Pocztowy": return "zip_code";
+            case "Telefon": return "phone";
+            case "Email": return "email";
+            default: return "unknown_col";
+        }
+    }
+
+    private String getValueForColumn(Person p, String colName) {
+        switch (colName) {
+            case "Imię": return p.getFirstName();
+            case "Nazwisko": return p.getLastName();
+            case "Płeć": return p.getGender().toString();
+            case "Wiek": return p.getBirthDate() != null ? String.valueOf(Period.between(p.getBirthDate(), LocalDate.now()).getYears()) : "0";
+            case "Data Urodzenia": return p.getBirthDate() != null ? p.getBirthDate().toString() : "";
+            case "PESEL": return p.getPesel();
+            case "NIP": return p.getNip() != null ? p.getNip() : "";
+            case "Nr Dowodu": return p.getIdCardNumber() != null ? p.getIdCardNumber() : "";
+            case "Miasto": return p.getAddress().getCity();
+            case "Województwo": return p.getAddress().getVoivodeship();
+            case "Ulica": return p.getAddress().getStreet() + " " + p.getAddress().getHouseNumber();
+            case "Kod Pocztowy": return p.getAddress().getZipCode();
+            case "Telefon": return p.getContact().getPhoneNumber();
+            case "Email": return p.getContact().getEmail();
+            default: return "";
+        }
+    }
 
     private String escapeSql(String input) {
         if (input == null) return "";

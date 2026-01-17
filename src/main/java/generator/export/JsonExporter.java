@@ -1,21 +1,17 @@
 package main.java.generator.export;
 
 import main.java.generator.model.Person;
-import main.java.generator.model.Address;
-import main.java.generator.model.Contact;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 
 public class JsonExporter implements DataExporter {
 
     @Override
-    public void export(List<Person> people, String filePath) throws IOException {
-        if (people == null || filePath == null) {
-            throw new IllegalArgumentException("Lista osób oraz ścieżka nie mogą być puste.");
-        }
-
+    public void export(List<Person> people, String filePath, List<String> columns) throws IOException {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
             writer.write("[\n");
 
@@ -23,53 +19,42 @@ public class JsonExporter implements DataExporter {
                 Person p = people.get(i);
                 writer.write("  {\n");
 
-                writer.write(formatField("firstName", p.getFirstName(), true));
-                writer.write(formatField("lastName", p.getLastName(), true));
-                writer.write(formatField("birthDate", p.getBirthDate() != null ? p.getBirthDate().toString() : "", true));
-                writer.write(formatField("gender", p.getGender() != null ? p.getGender().toString() : "", true));
-                writer.write(formatField("pesel", p.getPesel(), true));
-                writer.write(formatField("nip", p.getNip(), true));
-                writer.write(formatField("idCardNumber", p.getIdCardNumber(), true));
+                boolean first = true;
 
-                Address addr = p.getAddress();
-                writer.write("    \"address\": {\n");
-                if (addr != null) {
-                    writer.write(formatField("street", addr.getStreet(), true, 6));
-                    writer.write(formatField("houseNumber", addr.getHouseNumber(), true, 6));
-                    writer.write(formatField("city", addr.getCity(), true, 6));
-                    writer.write(formatField("zipCode", addr.getZipCode(), true, 6));
-                    writer.write(formatField("voivodeship", addr.getVoivodeship(), false, 6));
+                if (columns.contains("Imię")) first = writeField(writer, "firstName", p.getFirstName(), first);
+                if (columns.contains("Nazwisko")) first = writeField(writer, "lastName", p.getLastName(), first);
+                if (columns.contains("Płeć")) first = writeField(writer, "gender", p.getGender().toString(), first);
+                if (columns.contains("Wiek") && p.getBirthDate() != null) {
+                    int age = Period.between(p.getBirthDate(), LocalDate.now()).getYears();
+                    first = writeField(writer, "age", String.valueOf(age), first);
                 }
-                writer.write("    },\n");
+                if (columns.contains("Data Urodzenia")) first = writeField(writer, "birthDate", p.getBirthDate().toString(), first);
+                if (columns.contains("PESEL")) first = writeField(writer, "pesel", p.getPesel(), first);
+                if (columns.contains("NIP")) first = writeField(writer, "nip", p.getNip(), first);
+                if (columns.contains("Nr Dowodu")) first = writeField(writer, "idCardNumber", p.getIdCardNumber(), first);
 
-                Contact cont = p.getContact();
-                writer.write("    \"contact\": {\n");
-                if (cont != null) {
-                    writer.write(formatField("email", cont.getEmail(), true, 6));
-                    writer.write(formatField("phoneNumber", cont.getPhoneNumber(), false, 6));
-                }
-                writer.write("    }\n");
+                if (columns.contains("Miasto")) first = writeField(writer, "city", p.getAddress().getCity(), first);
+                if (columns.contains("Województwo")) first = writeField(writer, "voivodeship", p.getAddress().getVoivodeship(), first);
+                if (columns.contains("Ulica")) first = writeField(writer, "street", p.getAddress().getStreet() + " " + p.getAddress().getHouseNumber(), first);
+                if (columns.contains("Kod Pocztowy")) first = writeField(writer, "zipCode", p.getAddress().getZipCode(), first);
 
-                writer.write("  }");
+                if (columns.contains("Telefon")) first = writeField(writer, "phone", p.getContact().getPhoneNumber(), first);
+                if (columns.contains("Email")) first = writeField(writer, "email", p.getContact().getEmail(), first);
 
-                if (i < people.size() - 1) {
-                    writer.write(",");
-                }
+                writer.write("\n  }");
+                if (i < people.size() - 1) writer.write(",");
                 writer.write("\n");
             }
-
             writer.write("]");
         }
     }
 
-    private String formatField(String key, String value, boolean hasNext) {
-        return formatField(key, value, hasNext, 4);
-    }
-
-    private String formatField(String key, String value, boolean hasNext, int indentSize) {
-        String safeValue = (value == null) ? "" : value;
-        String indent = " ".repeat(indentSize);
-        String line = indent + "\"" + key + "\": \"" + safeValue + "\"";
-        return hasNext ? line + ",\n" : line + "\n";
+    private boolean writeField(BufferedWriter writer, String key, String value, boolean isFirst) throws IOException {
+        if (value == null) value = "";
+        if (!isFirst) {
+            writer.write(",\n");
+        }
+        writer.write("    \"" + key + "\": \"" + value + "\"");
+        return false;
     }
 }

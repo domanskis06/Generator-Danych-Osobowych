@@ -1,62 +1,61 @@
 package main.java.generator.export;
 
 import main.java.generator.model.Person;
-import main.java.generator.model.Address;
-import main.java.generator.model.Contact;
-
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.format.DateTimeFormatter;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
+import java.util.StringJoiner;
 
 public class CsvExporter implements DataExporter {
 
-
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-    public void export(List<Person> data, String filePath) throws IOException {
+    @Override
+    public void export(List<Person> data, String filePath, List<String> columns) throws IOException {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, StandardCharsets.UTF_8))) {
 
-
-            writer.write("Imię;Nazwisko;Data Urodzenia;Płeć;PESEL;NIP;Nr Dowodu;Miasto;Ulica;Kod Pocztowy;Telefon;Email");
+            StringJoiner headerJoiner = new StringJoiner(";");
+            for (String col : columns) {
+                headerJoiner.add(col);
+            }
+            writer.write(headerJoiner.toString());
             writer.newLine();
 
-
             for (Person person : data) {
+                StringJoiner lineJoiner = new StringJoiner(";");
 
-                String city = (person.getAddress() != null) ? person.getAddress().getCity() : "";
-                String street = (person.getAddress() != null) ? person.getAddress().getStreet() : "";
-                String postalCode = (person.getAddress() != null) ? person.getAddress().getZipCode() : "";
+                for (String col : columns) {
+                    String value = getValueForColumn(person, col);
+                    lineJoiner.add(value);
+                }
 
-                String phone = (person.getContact() != null) ? person.getContact().getPhoneNumber() : "";
-                String email = (person.getContact() != null) ? person.getContact().getEmail() : "";
-
-                String nip = (person.getNip() != null) ? person.getNip() : "";
-                String idCard = (person.getIdCardNumber() != null) ? person.getIdCardNumber() : "";
-
-                String birthDateStr = (person.getBirthDate() != null) ? person.getBirthDate().format(DATE_FORMATTER) : "";
-
-
-                String line = String.format("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s",
-                        person.getFirstName(),
-                        person.getLastName(),
-                        birthDateStr,
-                        person.getGender(),
-                        person.getPesel(),
-                        nip,
-                        idCard,
-                        city,
-                        street,
-                        postalCode,
-                        phone,
-                        email
-                );
-
-                writer.write(line);
+                writer.write(lineJoiner.toString());
                 writer.newLine();
             }
+        }
+    }
+
+    private String getValueForColumn(Person p, String colName) {
+        switch (colName) {
+            case "Imię": return p.getFirstName();
+            case "Nazwisko": return p.getLastName();
+            case "Płeć": return p.getGender().toString();
+            case "Wiek":
+                return p.getBirthDate() != null ?
+                        String.valueOf(Period.between(p.getBirthDate(), LocalDate.now()).getYears()) : "";
+            case "Data Urodzenia": return p.getBirthDate() != null ? p.getBirthDate().toString() : "";
+            case "PESEL": return p.getPesel();
+            case "NIP": return p.getNip() != null ? p.getNip() : "";
+            case "Nr Dowodu": return p.getIdCardNumber() != null ? p.getIdCardNumber() : "";
+            case "Miasto": return p.getAddress().getCity();
+            case "Województwo": return p.getAddress().getVoivodeship();
+            case "Ulica": return p.getAddress().getStreet() + " " + p.getAddress().getHouseNumber();
+            case "Kod Pocztowy": return p.getAddress().getZipCode();
+            case "Telefon": return p.getContact().getPhoneNumber();
+            case "Email": return p.getContact().getEmail();
+            default: return "";
         }
     }
 }

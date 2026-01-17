@@ -5,7 +5,7 @@ import main.java.generator.export.JsonExporter;
 import main.java.generator.export.SqlExporter;
 import main.java.generator.logic.PersonGenerator;
 import main.java.generator.model.Person;
-import main.java.generator.model.Gender; // Import enum Gender
+import main.java.generator.model.Gender;
 
 import javax.swing.*;
 import java.io.File;
@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class MainController {
 
@@ -37,78 +38,93 @@ public class MainController {
     }
 
     private void generateData() {
-        try {
+        SwingUtilities.invokeLater(() -> {
+            try {
+                int count = Integer.parseInt(view.getCountField().getText());
+                int minAge = Integer.parseInt(view.getMinAgeField().getText());
+                int maxAge = Integer.parseInt(view.getMaxAgeField().getText());
+                String selectedGenderStr = (String) view.getGenderBox().getSelectedItem();
 
-            String countText = view.getCountField().getText();
-            String minAgeText = view.getMinAgeField().getText();
-            String maxAgeText = view.getMaxAgeField().getText();
-            String selectedGenderStr = (String) view.getGenderBox().getSelectedItem();
+                if (count <= 0) { view.setStatus("Błąd: Liczba <= 0"); return; }
+                if (minAge > maxAge) { view.setStatus("Błąd: Wiek min > max"); return; }
 
-            int count = Integer.parseInt(countText);
-            int minAge = Integer.parseInt(minAgeText);
-            int maxAge = Integer.parseInt(maxAgeText);
+                Gender targetGender = null;
+                if ("Kobieta".equals(selectedGenderStr)) targetGender = Gender.FEMALE;
+                else if ("Mężczyzna".equals(selectedGenderStr)) targetGender = Gender.MALE;
 
+                List<String> activeColumns = new ArrayList<>();
+                Map<String, JCheckBox> checkboxes = view.getColumnCheckboxes();
 
-            if (count <= 0) {
-                view.appendLog("Błąd: Liczba osób musi być większa od 0.");
-                return;
-            }
-            if (minAge < 0 || maxAge < 0 || minAge > maxAge) {
-                view.appendLog("Błąd: Nieprawidłowy zakres wieku.");
-                return;
-            }
-            int ABSOLUTE_MAX_AGE = 110;
-            if (maxAge > ABSOLUTE_MAX_AGE) {
-                String errorMsg = "Błąd: Maksymalny wiek (" + maxAge + ") jest zbyt wysoki. Limit to " + ABSOLUTE_MAX_AGE + " lat.";
-                view.appendLog(errorMsg);
-                JOptionPane.showMessageDialog(view, errorMsg, "Nieprawidłowy wiek", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-
-            Gender targetGender = null;
-            if ("Kobieta".equals(selectedGenderStr)) targetGender = Gender.FEMALE;
-            else if ("Mężczyzna".equals(selectedGenderStr)) targetGender = Gender.MALE;
-
-            view.appendLog("Generowanie " + count + " osób...");
-            view.appendLog("-> Parametry: Wiek=" + minAge + "-" + maxAge + ", Płeć=" + selectedGenderStr);
-
-            generatedPeople.clear();
-            int attempts = 0;
-            int maxAttempts = count * 2000;
-
-
-            while (generatedPeople.size() < count && attempts < maxAttempts) {
-                Person p = personGenerator.generate();
-                attempts++;
-
-
-                boolean ageOk = isAgeInRange(p, minAge, maxAge);
-                boolean genderOk = (targetGender == null) || (p.getGender() == targetGender);
-
-                if (ageOk && genderOk) {
-                    generatedPeople.add(p);
+                for (Map.Entry<String, JCheckBox> entry : checkboxes.entrySet()) {
+                    if (entry.getValue().isSelected()) {
+                        activeColumns.add(entry.getKey());
+                    }
                 }
+
+                if (activeColumns.isEmpty()) {
+                    JOptionPane.showMessageDialog(view, "Musisz wybrać przynajmniej jedną kolumnę!", "Błąd", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                view.clearTable();
+                view.setTableColumns(activeColumns.toArray());
+
+                generatedPeople.clear();
+                view.setStatus("Generowanie...");
+
+                int attempts = 0;
+                int maxAttempts = count * 5000;
+
+                while (generatedPeople.size() < count && attempts < maxAttempts) {
+                    Person p = personGenerator.generate();
+                    attempts++;
+
+                    boolean ageOk = isAgeInRange(p, minAge, maxAge);
+                    boolean genderOk = (targetGender == null) || (p.getGender() == targetGender);
+
+                    if (ageOk && genderOk) {
+                        generatedPeople.add(p);
+
+                        Object[] rowData = new Object[activeColumns.size()];
+
+                        for (int i = 0; i < activeColumns.size(); i++) {
+                            String colName = activeColumns.get(i);
+                            rowData[i] = getPersonValue(p, colName);
+                        }
+
+                        view.addRowToTable(rowData);
+                    }
+                }
+
+                view.setStatus("Wygenerowano " + generatedPeople.size() + " rekordów.");
+                view.enableExportButtons(!generatedPeople.isEmpty());
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                view.setStatus("Błąd: " + ex.getMessage());
             }
-
-            if (generatedPeople.size() < count) {
-                view.appendLog("Ostrzeżenie: Wygenerowano tylko " + generatedPeople.size() + " osób (przekroczono limit prób).");
-                view.appendLog("Możliwe, że kryteria są zbyt restrykcyjne dla losowego generatora.");
-            } else {
-                view.appendLog("Sukces: Wygenerowano " + generatedPeople.size() + " rekordów.");
-            }
-
-            view.enableExportButtons(!generatedPeople.isEmpty());
-
-        } catch (NumberFormatException ex) {
-            view.appendLog("Błąd: Wprowadź poprawne liczby.");
-            JOptionPane.showMessageDialog(view, "Błędne dane wejściowe.", "Błąd", JOptionPane.ERROR_MESSAGE);
-        } catch (Exception ex) {
-            view.appendLog("Błąd krytyczny: " + ex.getMessage());
-            ex.printStackTrace();
-        }
+        });
     }
 
+    private Object getPersonValue(Person p, String columnName) {
+        switch (columnName) {
+            case "Imię": return p.getFirstName();
+            case "Nazwisko": return p.getLastName();
+            case "Płeć": return p.getGender();
+            case "Wiek": return Period.between(p.getBirthDate(), LocalDate.now()).getYears();
+            case "Data Urodzenia": return p.getBirthDate();
+            case "PESEL": return p.getPesel();
+            case "NIP": return p.getNip();
+            case "Nr Dowodu": return p.getIdCardNumber();
+            case "Miasto": return p.getAddress().getCity();
+            case "Województwo": return p.getAddress().getVoivodeship();
+            case "Ulica": return p.getAddress().getStreet() + " " + p.getAddress().getHouseNumber();
+            case "Kod Pocztowy": return p.getAddress().getZipCode();
+            case "Telefon": return p.getContact().getPhoneNumber();
+            case "Email": return p.getContact().getEmail();
+            default: return "";
+        }
+    }
 
     private boolean isAgeInRange(Person person, int minAge, int maxAge) {
         if (person.getBirthDate() == null) return false;
@@ -117,24 +133,52 @@ public class MainController {
     }
 
     private void exportData(String format) {
-        if (generatedPeople.isEmpty()) return;
+        if (generatedPeople.isEmpty()) {
+            JOptionPane.showMessageDialog(view, "Najpierw wygeneruj dane!", "Błąd", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        List<String> activeColumns = new ArrayList<>();
+        Map<String, JCheckBox> checkboxes = view.getColumnCheckboxes();
+        for (Map.Entry<String, JCheckBox> entry : checkboxes.entrySet()) {
+            if (entry.getValue().isSelected()) {
+                activeColumns.add(entry.getKey());
+            }
+        }
+
+        if (activeColumns.isEmpty()) {
+            JOptionPane.showMessageDialog(view, "Nie wybrano żadnych kolumn do eksportu.", "Błąd", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Zapisz plik " + format);
-        fileChooser.setSelectedFile(new File("people." + format.toLowerCase()));
+        fileChooser.setSelectedFile(new File("dane." + format.toLowerCase()));
 
         if (fileChooser.showSaveDialog(view) == JFileChooser.APPROVE_OPTION) {
             String path = fileChooser.getSelectedFile().getAbsolutePath();
+            if(!path.toLowerCase().endsWith("." + format.toLowerCase())) {
+                path += "." + format.toLowerCase();
+            }
+
             try {
                 switch (format) {
-                    case "CSV": new CsvExporter().export(generatedPeople, path); break;
-                    case "JSON": new JsonExporter().export(generatedPeople, path); break;
-                    case "SQL": new SqlExporter().export(generatedPeople, path); break;
+                    case "CSV":
+                        new CsvExporter().export(generatedPeople, path, activeColumns);
+                        break;
+                    case "JSON":
+                        new JsonExporter().export(generatedPeople, path, activeColumns);
+                        break;
+                    case "SQL":
+                        new SqlExporter().export(generatedPeople, path, activeColumns);
+                        break;
                 }
-                view.appendLog("Zapisano: " + path);
+                view.setStatus("Zapisano plik: " + path);
                 JOptionPane.showMessageDialog(view, "Eksport zakończony sukcesem!");
             } catch (Exception ex) {
-                view.appendLog("Błąd zapisu: " + ex.getMessage());
+                view.setStatus("Błąd zapisu!");
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(view, "Błąd zapisu: " + ex.getMessage(), "Błąd", JOptionPane.ERROR_MESSAGE);
             }
         }
     }

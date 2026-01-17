@@ -6,5 +6,4 @@ import java.util.List;
 import java.io.IOException;
 
 public interface DataExporter {
-    void export(List<Person> people, String filePath) throws IOException;
-}
+    void export(List<Person> data, String filePath, List<String> columns) throws IOException;}
