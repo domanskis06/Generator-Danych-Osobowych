@@ -29,6 +29,10 @@ public class SqlExporter implements DataExporter {
             writer.newLine();
             writer.write("    pesel VARCHAR(11),");
             writer.newLine();
+            writer.write("    nip VARCHAR(10),");
+            writer.newLine();
+            writer.write("    id_card_number VARCHAR(20),");
+            writer.newLine();
             writer.write("    city VARCHAR(100),");
             writer.newLine();
             writer.write("    street VARCHAR(100),");
@@ -46,6 +50,8 @@ public class SqlExporter implements DataExporter {
                 Contact contact = person.getContact();
 
                 String birthDate = (person.getBirthDate() != null) ? "'" + person.getBirthDate() + "'" : "NULL";
+                String nip = (person.getNip() != null) ? "'" + escapeSql(person.getNip()) + "'" : "NULL";
+                String idCard = (person.getIdCardNumber() != null) ? "'" + escapeSql(person.getIdCardNumber()) + "'" : "NULL";
                 String city = (address != null && address.getCity() != null) ? "'" + escapeSql(address.getCity()) + "'" : "NULL";
                 String street = (address != null && address.getStreet() != null) ? "'" + escapeSql(address.getStreet()) + "'" : "NULL";
                 String email = (contact != null && contact.getEmail() != null) ? "'" + escapeSql(contact.getEmail()) + "'" : "NULL";
@@ -58,6 +64,8 @@ public class SqlExporter implements DataExporter {
                         birthDate,
                         person.getGender(),
                         person.getPesel(),
+                        nip,
+                        idCard,
                         city,
                         street,
                         email,

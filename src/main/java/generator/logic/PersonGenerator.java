@@ -14,6 +14,8 @@ public class PersonGenerator implements Generator<Person> {
 
     private final PeselGenerator peselGenerator;
     private final EmailGenerator emailGenerator;
+    private final NipGenerator nipGenerator;
+    private final IdentityCardGenerator idCardGenerator;
     private final Random random;
 
     private WeightedDictionary maleNames;
@@ -32,6 +34,8 @@ public class PersonGenerator implements Generator<Person> {
     public PersonGenerator() {
         this.peselGenerator = new PeselGenerator();
         this.emailGenerator = new EmailGenerator();
+        this.nipGenerator = new NipGenerator();
+        this.idCardGenerator = new IdentityCardGenerator();
         this.random = new Random();
         loadDictionaries();
     }
@@ -88,6 +92,9 @@ public class PersonGenerator implements Generator<Person> {
 
         String pesel = peselGenerator.generate(birthDate, gender);
         person.setPesel(pesel);
+
+        person.setNip(nipGenerator.generate());
+        person.setIdCardNumber(idCardGenerator.generate());
 
         Address address = new Address();
 
