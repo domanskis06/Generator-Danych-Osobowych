@@ -40,18 +40,18 @@ public class PersonGenerator implements Generator<Person> {
     private void loadDictionaries() {
         DictionaryLoader loader = new DictionaryLoader();
 
-        this.maleNames = loader.loadWeightedData3cols("imiona_meskie.csv");
-        this.femaleNames = loader.loadWeightedData3cols("imiona_zenskie.csv");
+        this.maleNames = loader.loadWeightedData3cols("main/resources/imiona_meskie.csv");
+        this.femaleNames = loader.loadWeightedData3cols("main/resources/imiona_zenskie.csv");
 
-        this.maleSurnames = loader.loadWeightedData("nazwiska_meskie.csv");
-        this.femaleSurnames = loader.loadWeightedData("nazwiska_zenskie.csv");
+        this.maleSurnames = loader.loadWeightedData("main/resources/nazwiska_meskie.csv");
+        this.femaleSurnames = loader.loadWeightedData("main/resources/nazwiska_zenskie.csv");
 
-        this.cities = loader.loadWeightedData3cols("miasta.csv");
-        this.cityToVoivodeship = loader.loadCityVoivodeshipMap("miasta.csv");
+        this.cities = loader.loadWeightedData3cols("main/resources/miasta.csv");
+        this.cityToVoivodeship = loader.loadCityVoivodeshipMap("main/resources/miasta.csv");
 
-        this.streets = loader.loadSimpleList("ulice.csv");
-        this.voivodeshipToZipCodes = loader.loadZipCodesMap("kody_pocztowe.csv");
-        this.mobilePrefixes = loader.loadSimpleList("numery_telefonow.txt");
+        this.streets = loader.loadSimpleList("main/resources/ulice.csv");
+        this.voivodeshipToZipCodes = loader.loadZipCodesMap("main/resources/kody_pocztowe.csv");
+        this.mobilePrefixes = loader.loadSimpleList("main/resources/numery_telefonow.txt");
     }
 
     @Override

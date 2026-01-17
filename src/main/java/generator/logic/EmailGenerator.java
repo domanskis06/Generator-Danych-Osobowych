@@ -14,7 +14,7 @@ public class EmailGenerator {
 
     public String generate(Person person) {
         List<String> parts = new ArrayList<>();
-        boolean useFirstName = true;
+        boolean useFirstName = random.nextBoolean();
         boolean useLastName = random.nextBoolean() || !useFirstName;
         boolean useBirthDate = random.nextBoolean();
         if (useFirstName) {
@@ -27,45 +27,39 @@ public class EmailGenerator {
 
         if (useBirthDate) {
             String datePart = prepareDate(person.getBirthDate());
-            if (parts.isEmpty()) {
-                parts.add(datePart);
-            } else {
-                int position = 1 + random.nextInt(parts.size());
-                parts.add(position, datePart);
-            }
-        }
-        StringBuilder emailName = new StringBuilder();
-        String currentSeparator = separators.get(random.nextInt(separators.size()));
-
-        for (int i = 0; i < parts.size(); i++) {
-            emailName.append(parts.get(i));
-            if (i < parts.size() - 1) {
-                emailName.append(currentSeparator);
-            }
+            int position = 1 + random.nextInt(parts.size());
+            parts.add(position, datePart);
         }
 
         String lastElement = parts.get(parts.size() - 1);
         boolean isDateAtEnd = lastElement.matches("\\d+");
 
-        if (!isDateAtEnd && random.nextInt(100) < 30) {
-            emailName.append(random.nextInt(1000));
+        if (!isDateAtEnd && random.nextInt(100) < 50) {
+            parts.add(String.valueOf(random.nextInt(1000)));
+        }
+
+        StringBuilder emailName = new StringBuilder();
+        int separatorPosition = parts.size() > 1 ? random.nextInt(parts.size() - 1) : -1;
+        String currentSeparator = separators.get(random.nextInt(separators.size()));
+
+        for (int i = 0; i < parts.size(); i++) {
+            emailName.append(parts.get(i));
+            if (i == separatorPosition) {
+                emailName.append(currentSeparator);
+            }
         }
 
         String domain = domains.get(random.nextInt(domains.size()));
-
         return emailName.toString().toLowerCase() + "@" + domain;
     }
 
     private String prepareString(String input) {
-        if (input == null || input.isEmpty()) return "user";
-
         String normalized = removeAccents(input.toLowerCase());
 
-        if (random.nextBoolean() && normalized.length() > 3) {
-            int len = 3 + random.nextInt(normalized.length() - 2);
-            return normalized.substring(0, Math.min(len, normalized.length()));
+        if (random.nextBoolean()) {
+            int randomLen = 1 + random.nextInt(normalized.length());
+            return normalized.substring(0, randomLen);
         }
-
         return normalized;
     }
 
