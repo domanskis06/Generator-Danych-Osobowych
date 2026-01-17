@@ -13,6 +13,7 @@ import java.util.Random;
 public class PersonGenerator implements Generator<Person> {
 
     private final PeselGenerator peselGenerator;
+    private final EmailGenerator emailGenerator;
     private final Random random;
 
     private WeightedDictionary maleNames;
@@ -28,6 +29,7 @@ public class PersonGenerator implements Generator<Person> {
 
     public PersonGenerator() {
         this.peselGenerator = new PeselGenerator();
+        this.emailGenerator = new EmailGenerator();
         this.random = new Random();
         loadDictionaries();
     }
@@ -36,13 +38,13 @@ public class PersonGenerator implements Generator<Person> {
     private void loadDictionaries() {
         DictionaryLoader loader = new DictionaryLoader();
 
-        this.maleNames = loader.loadWeightedNames("imiona_meskie.csv");
-        this.femaleNames = loader.loadWeightedNames("imiona_zenskie.csv");
+        this.maleNames = loader.loadWeightedData3cols("imiona_meskie.csv");
+        this.femaleNames = loader.loadWeightedData3cols("imiona_zenskie.csv");
 
         this.maleSurnames = loader.loadWeightedData("nazwiska_meskie.csv");
         this.femaleSurnames = loader.loadWeightedData("nazwiska_zenskie.csv");
 
-        this.cities = loader.loadWeightedCities("miasta.csv");
+        this.cities = loader.loadWeightedData3cols("miasta.csv");
         this.cityToVoivodeship = loader.loadCityVoivodeshipMap("miasta.csv");
 
         this.streets = loader.loadSimpleList("ulice.csv");
@@ -105,7 +107,8 @@ public class PersonGenerator implements Generator<Person> {
         person.setAddress(address);
 
         Contact contact = new Contact();
-        contact.setEmail(person.getFirstName().toLowerCase() + "." + person.getLastName().toLowerCase() + "@gmail.com");
+        String generatedEmail = emailGenerator.generate(person);
+        contact.setEmail(generatedEmail);
         contact.setPhoneNumber("+48" + String.valueOf(100000000 + random.nextInt(900000000)));
         person.setContact(contact);
 

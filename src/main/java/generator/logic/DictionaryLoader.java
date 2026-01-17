@@ -15,7 +15,7 @@ public class DictionaryLoader {
      * Wczytuje plik csv z wagami (Format: IMIĘ, PŁEĆ, LICZBA).
      * Separator: przecinek
      */
-    public WeightedDictionary loadWeightedNames(String fileName) {
+    public WeightedDictionary loadWeightedData3cols(String fileName) {
         WeightedDictionary dictionary = new WeightedDictionary();
 
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(fileName)) {
@@ -77,45 +77,6 @@ public class DictionaryLoader {
                         long weight = Long.parseLong(weightStr);
                         dictionary.addEntry(key, weight);
                     } catch (NumberFormatException e) {
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return dictionary;
-    }
-
-    /**
-     * Format: MIASTO; WOJEWÓDZTWO; LICZBA
-     * Separator: średnik
-     */
-    public WeightedDictionary loadWeightedCities(String fileName) {
-        WeightedDictionary dictionary = new WeightedDictionary();
-
-        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(fileName)) {
-            if (inputStream == null) {
-                throw new IllegalArgumentException("Plik nie znaleziony: " + fileName);
-            }
-
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
-                String line;
-
-                while ((line = br.readLine()) != null) {
-                    if (line.trim().isEmpty()) continue;
-
-                    String[] values = line.split(";");
-
-                    if (values.length >= 3) {
-                        String cityName = values[0].trim();
-
-                        try {
-                            String populationStr = values[2].trim().replace(" ", "").replace("\u00A0", "");
-                            long population = Long.parseLong(populationStr);
-
-                            dictionary.addEntry(cityName, population);
-                        } catch (NumberFormatException e) {
-                        }
                     }
                 }
             }
