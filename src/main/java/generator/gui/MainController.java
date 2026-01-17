@@ -1,4 +1,4 @@
-package generator.gui;
+package main.java.generator.gui;
 
 import main.java.generator.export.CsvExporter;
 import main.java.generator.export.JsonExporter;
@@ -45,7 +45,6 @@ public class MainController {
 
             view.appendLog("Rozpoczynam generowanie " + count + " osób...");
 
-            // Generowanie danych
             generatedPeople.clear();
             for (int i = 0; i < count; i++) {
                 generatedPeople.add(personGenerator.generate());
