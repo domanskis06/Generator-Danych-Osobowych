@@ -1,10 +1,14 @@
 package main.java.generator;
 
+import generator.gui.MainController;
+import generator.gui.MainView;
 import main.java.generator.export.CsvExporter;
 import main.java.generator.export.JsonExporter;
 import main.java.generator.export.SqlExporter;
 import main.java.generator.logic.PersonGenerator;
 import main.java.generator.model.Person;
+
+import javax.swing.*;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -15,6 +19,22 @@ import java.util.List;
 public class App {
 
     public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            try {
+                // Opcjonalnie: ustawienie wyglądu systemowego
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            MainView view = new MainView();
+            new MainController(view);
+        });
+
+
+
+
+
         System.out.println("GENERATOR DANYCH OSOBOWYCH");
         System.out.println();
 
