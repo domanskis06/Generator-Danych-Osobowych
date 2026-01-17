@@ -33,6 +33,9 @@ public class CsvExporter implements DataExporter {
                 String phone = (person.getContact() != null) ? person.getContact().getPhoneNumber() : "";
                 String email = (person.getContact() != null) ? person.getContact().getEmail() : "";
 
+                String nip = (person.getNip() != null) ? person.getNip() : "";
+                String idCard = (person.getIdCardNumber() != null) ? person.getIdCardNumber() : "";
+
                 String birthDateStr = (person.getBirthDate() != null) ? person.getBirthDate().format(DATE_FORMATTER) : "";
 
 
@@ -42,8 +45,8 @@ public class CsvExporter implements DataExporter {
                         birthDateStr,
                         person.getGender(),
                         person.getPesel(),
-                        person.getNip(),
-                        person.getIdCardNumber(),
+                        nip,
+                        idCard,
                         city,
                         street,
                         postalCode,
