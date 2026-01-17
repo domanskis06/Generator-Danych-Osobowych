@@ -24,6 +24,7 @@ public class PersonGenerator implements Generator<Person> {
     private WeightedDictionary cities;
     private Map<String, String> cityToVoivodeship;
     private List<String> streets;
+    private Map<String, List<String>> voivodeshipToZipCodes;
 
 
     public PersonGenerator() {
@@ -46,6 +47,7 @@ public class PersonGenerator implements Generator<Person> {
         this.cityToVoivodeship = loader.loadCityVoivodeshipMap("miasta.csv");
 
         this.streets = loader.loadSimpleList("ulice.csv");
+        this.voivodeshipToZipCodes = loader.loadZipCodesMap("kody_pocztowe.csv");
     }
 
     @Override
@@ -100,8 +102,14 @@ public class PersonGenerator implements Generator<Person> {
 
         address.setHouseNumber(String.valueOf(random.nextInt(150) + 1));
 
-        address.setZipCode(String.format("%02d-%03d", random.nextInt(100), random.nextInt(1000)));
+        List<String> validCodes = voivodeshipToZipCodes.get(voivodeship);
 
+        if (validCodes != null && !validCodes.isEmpty()) {
+            String randomCode = validCodes.get(random.nextInt(validCodes.size()));
+            address.setZipCode(randomCode);
+        } else {
+            address.setZipCode(String.format("%02d-%03d", random.nextInt(100), random.nextInt(1000)));
+        }
         person.setAddress(address);
 
         Contact contact = new Contact();
