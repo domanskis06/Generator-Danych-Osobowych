@@ -261,3 +261,4 @@ public class MainController {
         return String.format("%s | %-30s | %d (%.1f%%)\n", label, bar.toString(), value, percentage);
     }
 }
+//daje komentarz bo commit nie dzialal

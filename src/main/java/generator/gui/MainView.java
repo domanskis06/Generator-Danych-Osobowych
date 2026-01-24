@@ -250,3 +250,4 @@ public class MainView extends JFrame {
         JOptionPane.showMessageDialog(this, scrollPane, "Raport Statystyczny", JOptionPane.INFORMATION_MESSAGE);
     }
 }
+//daje komentarz bo commit nie dzialal
