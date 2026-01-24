@@ -238,4 +238,15 @@ public class MainView extends JFrame {
     public JButton getExportJsonButton() { return exportJsonButton; }
     public JButton getExportSqlButton() { return exportSqlButton; }
     public JSlider getNoiseSlider() { return noiseSlider; }
+
+    public void showStatisticsReport(String reportText) {
+        JTextArea textArea = new JTextArea(reportText);
+        textArea.setEditable(false);
+        textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        scrollPane.setPreferredSize(new Dimension(600, 500));
+        
+        JOptionPane.showMessageDialog(this, scrollPane, "Raport Statystyczny", JOptionPane.INFORMATION_MESSAGE);
+    }
 }
