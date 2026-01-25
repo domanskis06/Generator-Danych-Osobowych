@@ -65,7 +65,7 @@ public class DataCorruptor {
         }
 
         if (random.nextDouble() < chance) {
-            person.setBirthDate(LocalDate.now().plusDays(30));
+            person.setBirthDate(LocalDate.now().minusDays(random.nextInt(365)));
         }
 
         if (random.nextDouble() < chance) {

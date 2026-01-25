@@ -9,7 +9,7 @@ import java.util.Map;
 
 import javax.swing.JOptionPane;
 
-public class MainView extends javax.swing.JFrame { // lub inna klasa bazowa
+public class MainView extends javax.swing.JFrame {
 
     private JTextField countField;
     private JTextField minAgeField;
@@ -248,7 +248,7 @@ public class MainView extends javax.swing.JFrame { // lub inna klasa bazowa
     public void showStatisticsReport(String reportText) {
         JTextArea textArea = new JTextArea(reportText);
         textArea.setEditable(false);
-        textArea.setFont(new Font("Monospaced", Font.PLAIN, 12)); // Kluczowe dla wyrównania wykresów
+        textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
         
         JScrollPane scrollPane = new JScrollPane(textArea);
         scrollPane.setPreferredSize(new Dimension(600, 500));
@@ -256,5 +256,4 @@ public class MainView extends javax.swing.JFrame { // lub inna klasa bazowa
         JOptionPane.showMessageDialog(this, scrollPane, "Raport Statystyczny", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    // ... existing code ...
 }

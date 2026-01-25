@@ -113,7 +113,6 @@ public class MainController {
                 view.setStatus("Wygenerowano " + generatedPeople.size() + " rekordów.");
                 view.enableExportButtons(!generatedPeople.isEmpty());
 
-                // --- DODANY KOD STATYSTYK ---
                 long total = generatedPeople.size();
                 long males = generatedPeople.stream().filter(p -> p.getGender() == Gender.MALE).count();
                 long females = generatedPeople.stream().filter(p -> p.getGender() == Gender.FEMALE).count();
@@ -125,10 +124,7 @@ public class MainController {
                 statsMessage.append("Kobiet: ").append(females).append("\n");
         
                 view.showStatistics(statsMessage.toString());
-                // -----------------------------
-        // List<Person> people = generator.generate(config);  <-- w miejscu gdzie masz listę osób
-        
-        // Generowanie i wyświetlanie raportu
+
         String report = createDistributionReport(generatedPeople);
         view.showStatisticsReport(report);
         
@@ -219,9 +215,8 @@ public class MainController {
     private String createDistributionReport(List<Person> people) {
         StringBuilder sb = new StringBuilder();
         sb.append("RAPORT ROZKŁADU DANYCH (N=").append(people.size()).append(")\n");
-        sb.append("========================================\n\n");
+        sb.append("===============================\n\n");
 
-        // 1. Rozkład Płci
         long males = people.stream().filter(p -> p.getGender() == Gender.MALE).count();
         long females = people.stream().filter(p -> p.getGender() == Gender.FEMALE).count();
         sb.append("1. ROZKŁAD PŁCI:\n");
@@ -229,17 +224,14 @@ public class MainController {
         sb.append(drawBar("Kobiety  ", (int) females, people.size()));
         sb.append("\n");
 
-        // 2. Rozkład Wieku
         Map<String, Integer> ageGroups = new HashMap<>();
-        // Inicjalizacja grup
         String[] groups = {"0-18", "19-30", "31-50", "51-65", "65+"};
         for(String g : groups) ageGroups.put(g, 0);
 
         LocalDate now = LocalDate.now();
         for (Person p : people) {
-            // Zakładam, że Person ma getBirthDate(). Jeśli nie, trzeba pobrać z PESEL.
             int age = Period.between(p.getBirthDate(), now).getYears();
-            if (age <= 18) ageGroups.put("0-18", ageGroups.get("0-18") + 1);
+            if (age <= 18 & age >= 0) ageGroups.put("0-18", ageGroups.get("0-18") + 1);
             else if (age <= 30) ageGroups.put("19-30", ageGroups.get("19-30") + 1);
             else if (age <= 50) ageGroups.put("31-50", ageGroups.get("31-50") + 1);
             else if (age <= 65) ageGroups.put("51-65", ageGroups.get("51-65") + 1);
@@ -252,7 +244,6 @@ public class MainController {
         }
         sb.append("\n");
 
-        // 3. Top 5 Miast (jeśli Person ma adres)
         sb.append("3. TOP 5 MIAST:\n");
         Map<String, Long> cityCounts = people.stream()
             .collect(Collectors.groupingBy(p -> p.getAddress().getCity(), Collectors.counting()));
@@ -267,10 +258,9 @@ public class MainController {
         return sb.toString();
     }
 
-    // Metoda pomocnicza do rysowania pasków ASCII
     private String drawBar(String label, int value, int total) {
         if (total == 0) return label + ": 0\n";
-        int barMaxLength = 30; // maksymalna długość paska
+        int barMaxLength = 30;
         int barLength = (int) (((double) value / total) * barMaxLength);
         
         StringBuilder bar = new StringBuilder();
