@@ -7,7 +7,9 @@ import java.awt.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class MainView extends JFrame {
+import javax.swing.JOptionPane;
+
+public class MainView extends javax.swing.JFrame {
 
     private JTextField countField;
     private JTextField minAgeField;
@@ -239,6 +241,10 @@ public class MainView extends JFrame {
     public JButton getExportSqlButton() { return exportSqlButton; }
     public JSlider getNoiseSlider() { return noiseSlider; }
 
+    public void showStatistics(String message) {
+        JOptionPane.showMessageDialog(this, message, "Statystyki Generowania", JOptionPane.INFORMATION_MESSAGE);
+    }
+
     public void showStatisticsReport(String reportText) {
         JTextArea textArea = new JTextArea(reportText);
         textArea.setEditable(false);
@@ -249,5 +255,5 @@ public class MainView extends JFrame {
         
         JOptionPane.showMessageDialog(this, scrollPane, "Raport Statystyczny", JOptionPane.INFORMATION_MESSAGE);
     }
+
 }
-//daje komentarz bo commit nie dzialal

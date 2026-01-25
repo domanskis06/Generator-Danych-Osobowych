@@ -113,12 +113,21 @@ public class MainController {
                 view.setStatus("Wygenerowano " + generatedPeople.size() + " rekordów.");
                 view.enableExportButtons(!generatedPeople.isEmpty());
 
+                long total = generatedPeople.size();
+                long males = generatedPeople.stream().filter(p -> p.getGender() == Gender.MALE).count();
+                long females = generatedPeople.stream().filter(p -> p.getGender() == Gender.FEMALE).count();
+
+                StringBuilder statsMessage = new StringBuilder();
+                statsMessage.append("Zakończono generowanie danych.\n\n");
+                statsMessage.append("Łącznie rekordów: ").append(total).append("\n");
+                statsMessage.append("Mężczyzn: ").append(males).append("\n");
+                statsMessage.append("Kobiet: ").append(females).append("\n");
+        
+                view.showStatistics(statsMessage.toString());
 
         String report = createDistributionReport(generatedPeople);
         view.showStatisticsReport(report);
         
-                
-
             } catch (Exception ex) {
                 ex.printStackTrace();
                 view.setStatus("Błąd: " + ex.getMessage());
@@ -206,7 +215,7 @@ public class MainController {
     private String createDistributionReport(List<Person> people) {
         StringBuilder sb = new StringBuilder();
         sb.append("RAPORT ROZKŁADU DANYCH (N=").append(people.size()).append(")\n");
-        sb.append("========================================\n\n");
+        sb.append("===============================\n\n");
 
         long males = people.stream().filter(p -> p.getGender() == Gender.MALE).count();
         long females = people.stream().filter(p -> p.getGender() == Gender.FEMALE).count();
@@ -222,7 +231,7 @@ public class MainController {
         LocalDate now = LocalDate.now();
         for (Person p : people) {
             int age = Period.between(p.getBirthDate(), now).getYears();
-            if (age <= 18) ageGroups.put("0-18", ageGroups.get("0-18") + 1);
+            if (age <= 18 & age >= 0) ageGroups.put("0-18", ageGroups.get("0-18") + 1);
             else if (age <= 30) ageGroups.put("19-30", ageGroups.get("19-30") + 1);
             else if (age <= 50) ageGroups.put("31-50", ageGroups.get("31-50") + 1);
             else if (age <= 65) ageGroups.put("51-65", ageGroups.get("51-65") + 1);
@@ -261,4 +270,3 @@ public class MainController {
         return String.format("%s | %-30s | %d (%.1f%%)\n", label, bar.toString(), value, percentage);
     }
 }
-//daje komentarz bo commit nie dzialal
