@@ -53,106 +53,129 @@ public class MainController {
     }
 
     private void generateData() {
-        SwingUtilities.invokeLater(() -> {
+        int count;
+        int minAge;
+        int maxAge;
+        String selectedGenderStr;
+        List<String> activeColumns = new ArrayList<>();
+
+        try {
+            count = Integer.parseInt(view.getCountField().getText());
+            minAge = Integer.parseInt(view.getMinAgeField().getText());
+            maxAge = Integer.parseInt(view.getMaxAgeField().getText());
+            selectedGenderStr = (String) view.getGenderBox().getSelectedItem();
+
+            Map<String, JCheckBox> checkboxes = view.getColumnCheckboxes();
+            for (Map.Entry<String, JCheckBox> entry : checkboxes.entrySet()) {
+                if (entry.getValue().isSelected()) {
+                    activeColumns.add(entry.getKey());
+                }
+            }
+
+            if (count <= 0) { view.setStatus("Błąd: Liczba <= 0"); return; }
+            if (minAge > maxAge) { view.setStatus("Błąd: Wiek min > max"); return; }
+
+            if (activeColumns.isEmpty()) {
+                JOptionPane.showMessageDialog(view, "Musisz wybrać przynajmniej jedną kolumnę!", "Błąd", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+        } catch (NumberFormatException ex) {
+            view.setStatus("Błąd: Nieprawidłowe dane wejściowe");
+            return;
+        }
+
+        view.clearTable();
+        view.setTableColumns(activeColumns.toArray());
+        view.setStatus("Generowanie...");
+        view.getGenerateButton().setEnabled(false);
+
+        Gender targetGender = null;
+        if ("Kobieta".equals(selectedGenderStr)) targetGender = Gender.FEMALE;
+        else if ("Mężczyzna".equals(selectedGenderStr)) targetGender = Gender.MALE;
+
+        final int finalCount = count;
+        final int finalMinAge = minAge;
+        final int finalMaxAge = maxAge;
+        final Gender finalTargetGender = targetGender;
+
+        new Thread(() -> {
             try {
-                int count = Integer.parseInt(view.getCountField().getText());
-                int minAge = Integer.parseInt(view.getMinAgeField().getText());
-                int maxAge = Integer.parseInt(view.getMaxAgeField().getText());
-                String selectedGenderStr = (String) view.getGenderBox().getSelectedItem();
-
-                if (count <= 0) { view.setStatus("Błąd: Liczba <= 0"); return; }
-                if (minAge > maxAge) { view.setStatus("Błąd: Wiek min > max"); return; }
-
-                Gender targetGender = null;
-                if ("Kobieta".equals(selectedGenderStr)) targetGender = Gender.FEMALE;
-                else if ("Mężczyzna".equals(selectedGenderStr)) targetGender = Gender.MALE;
-
-                List<String> activeColumns = new ArrayList<>();
-                Map<String, JCheckBox> checkboxes = view.getColumnCheckboxes();
-
-                for (Map.Entry<String, JCheckBox> entry : checkboxes.entrySet()) {
-                    if (entry.getValue().isSelected()) {
-                        activeColumns.add(entry.getKey());
-                    }
-                }
-
-                if (activeColumns.isEmpty()) {
-                    JOptionPane.showMessageDialog(view, "Musisz wybrać przynajmniej jedną kolumnę!", "Błąd", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                view.clearTable();
-                view.setTableColumns(activeColumns.toArray());
-
                 generatedPeople.clear();
-                view.setStatus("Generowanie...");
-
                 long startTime = System.currentTimeMillis();
-
                 int attempts = 0;
-                int maxAttempts = count * 5000;
+                long maxAttempts = (long) finalCount * 1000;
+                int tableLimit = 1000;
 
-                while (generatedPeople.size() < count && attempts < maxAttempts) {
+                while (generatedPeople.size() < finalCount && attempts < maxAttempts) {
                     Person p = personGenerator.generate();
                     attempts++;
 
-                    boolean ageOk = isAgeInRange(p, minAge, maxAge);
-                    boolean genderOk = (targetGender == null) || (p.getGender() == targetGender);
+                    boolean ageOk = isAgeInRange(p, finalMinAge, finalMaxAge);
+                    boolean genderOk = (finalTargetGender == null) || (p.getGender() == finalTargetGender);
 
                     if (ageOk && genderOk) {
-
                         int noiseValue = view.getNoiseSlider().getValue();
-
                         if (noiseValue > 0) {
                             double chance = noiseValue / 100.0;
                             dataCorruptor.corrupt(p, chance);
                         }
 
-                        Object[] rowData = new Object[activeColumns.size()];
-
-                        for (int i = 0; i < activeColumns.size(); i++) {
-                            String colName = activeColumns.get(i);
-                            rowData[i] = getPersonValue(p, colName);
-                        }
-
                         generatedPeople.add(p);
 
-                        view.addRowToTable(rowData);
+                        if (generatedPeople.size() % 5000 == 0) {
+                            final int currentSize = generatedPeople.size();
+                            SwingUtilities.invokeLater(() -> view.setStatus("Generowanie w tle: " + currentSize + " / " + finalCount));
+                        }
                     }
                 }
 
                 long endTime = System.currentTimeMillis();
                 double durationSeconds = (endTime - startTime) / 1000.0;
 
-
-                performanceHistory.add(new HistoryEntry(count, durationSeconds));
-
+                performanceHistory.add(new HistoryEntry(finalCount, durationSeconds));
                 performanceHistory.sort(Comparator.comparingInt(h -> h.count));
 
-                view.setStatus("Wygenerowano " + generatedPeople.size() + " rekordów.");
-                view.enableExportButtons(!generatedPeople.isEmpty());
+                String report = createDistributionReport(generatedPeople, durationSeconds);
 
-                long total = generatedPeople.size();
-                long males = generatedPeople.stream().filter(p -> p.getGender() == Gender.MALE).count();
-                long females = generatedPeople.stream().filter(p -> p.getGender() == Gender.FEMALE).count();
+                SwingUtilities.invokeLater(() -> {
+                    int limit = Math.min(generatedPeople.size(), tableLimit);
+                    for (int i = 0; i < limit; i++) {
+                        Person p = generatedPeople.get(i);
+                        Object[] rowData = new Object[activeColumns.size()];
+                        for (int col = 0; col < activeColumns.size(); col++) {
+                            rowData[col] = getPersonValue(p, activeColumns.get(col));
+                        }
+                        view.addRowToTable(rowData);
+                    }
 
-                StringBuilder statsMessage = new StringBuilder();
-                statsMessage.append("Zakończono generowanie danych.\n");
-                statsMessage.append("Czas trwania: ").append(String.format("%.3f s", durationSeconds)).append("\n\n");
-                statsMessage.append("Łącznie rekordów: ").append(total).append("\n");
-                statsMessage.append("Mężczyzn: ").append(males).append("\n");
-                statsMessage.append("Kobiet: ").append(females).append("\n");
+                    view.setStatus("Wygenerowano " + generatedPeople.size() + " rekordów.");
+                    view.enableExportButtons(!generatedPeople.isEmpty());
+                    view.getGenerateButton().setEnabled(true);
 
-                view.showStatistics(statsMessage.toString());
+                    String message = "Proces zakończony sukcesem.\nWygenerowano " + generatedPeople.size() + " rekordów.";
+                    if (generatedPeople.size() > tableLimit) {
+                        message += "\n(Podgląd tabeli ograniczony do " + tableLimit + " wierszy)";
+                    }
+                    JOptionPane.showMessageDialog(view, message, "Generowanie zakończone", JOptionPane.INFORMATION_MESSAGE);
 
-            String report = createDistributionReport(generatedPeople, durationSeconds);
-        view.showStatisticsReport(report);
+                    view.showStatisticsReport(report);
+                });
 
+            } catch (OutOfMemoryError e) {
+                SwingUtilities.invokeLater(() -> {
+                    view.setStatus("Błąd: Brak pamięci RAM!");
+                    JOptionPane.showMessageDialog(view, "Zabrakło pamięci RAM!", "Error", JOptionPane.ERROR_MESSAGE);
+                    view.getGenerateButton().setEnabled(true);
+                });
             } catch (Exception ex) {
                 ex.printStackTrace();
-                view.setStatus("Błąd: " + ex.getMessage());
+                SwingUtilities.invokeLater(() -> {
+                    view.setStatus("Błąd: " + ex.getMessage());
+                    view.getGenerateButton().setEnabled(true);
+                });
             }
-        });
+        }).start();
     }
 
     private Object getPersonValue(Person p, String columnName) {

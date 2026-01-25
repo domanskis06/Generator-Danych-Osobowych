@@ -85,7 +85,7 @@ public class PersonGenerator implements Generator<Person> {
         }
         person.setLastName(lastName);
 
-        int year = 1950 + random.nextInt(56);
+        int year = 1950 + random.nextInt(75);
         int dayOfYear = 1 + random.nextInt(365);
         LocalDate birthDate = LocalDate.ofYearDay(year, dayOfYear);
         person.setBirthDate(birthDate);
