@@ -16,6 +16,8 @@ import java.util.stream.Collectors;
 import java.util.Comparator;
 
 import javax.swing.*;
+import java.awt.Color;
+import java.awt.Font;
 import java.io.File;
 import java.util.ArrayList;
 
@@ -26,11 +28,14 @@ public class MainController {
     private final List<Person> generatedPeople;
     private final DataCorruptor dataCorruptor;
 
+    private final List<HistoryEntry> performanceHistory;
+
     public MainController(MainView view) {
         this.view = view;
         this.personGenerator = new PersonGenerator();
         this.generatedPeople = new ArrayList<>();
         this.dataCorruptor = new DataCorruptor();
+        this.performanceHistory = new ArrayList<>();
 
         initListeners();
         view.setVisible(true);
@@ -41,6 +46,10 @@ public class MainController {
         view.getExportCsvButton().addActionListener(e -> exportData("CSV"));
         view.getExportJsonButton().addActionListener(e -> exportData("JSON"));
         view.getExportSqlButton().addActionListener(e -> exportData("SQL"));
+
+
+        view.getGenerateButton().setForeground(Color.BLACK);
+        view.getGenerateButton().setFont(view.getGenerateButton().getFont().deriveFont(Font.BOLD));
     }
 
     private void generateData() {
@@ -78,6 +87,8 @@ public class MainController {
                 generatedPeople.clear();
                 view.setStatus("Generowanie...");
 
+                long startTime = System.currentTimeMillis();
+
                 int attempts = 0;
                 int maxAttempts = count * 5000;
 
@@ -110,6 +121,14 @@ public class MainController {
                     }
                 }
 
+                long endTime = System.currentTimeMillis();
+                double durationSeconds = (endTime - startTime) / 1000.0;
+
+
+                performanceHistory.add(new HistoryEntry(count, durationSeconds));
+
+                performanceHistory.sort(Comparator.comparingInt(h -> h.count));
+
                 view.setStatus("Wygenerowano " + generatedPeople.size() + " rekordów.");
                 view.enableExportButtons(!generatedPeople.isEmpty());
 
@@ -118,16 +137,17 @@ public class MainController {
                 long females = generatedPeople.stream().filter(p -> p.getGender() == Gender.FEMALE).count();
 
                 StringBuilder statsMessage = new StringBuilder();
-                statsMessage.append("Zakończono generowanie danych.\n\n");
+                statsMessage.append("Zakończono generowanie danych.\n");
+                statsMessage.append("Czas trwania: ").append(String.format("%.3f s", durationSeconds)).append("\n\n");
                 statsMessage.append("Łącznie rekordów: ").append(total).append("\n");
                 statsMessage.append("Mężczyzn: ").append(males).append("\n");
                 statsMessage.append("Kobiet: ").append(females).append("\n");
-        
+
                 view.showStatistics(statsMessage.toString());
 
-        String report = createDistributionReport(generatedPeople);
+            String report = createDistributionReport(generatedPeople, durationSeconds);
         view.showStatisticsReport(report);
-        
+
             } catch (Exception ex) {
                 ex.printStackTrace();
                 view.setStatus("Błąd: " + ex.getMessage());
@@ -212,9 +232,10 @@ public class MainController {
         }
     }
 
-    private String createDistributionReport(List<Person> people) {
+    private String createDistributionReport(List<Person> people, double durationSeconds) {
         StringBuilder sb = new StringBuilder();
         sb.append("RAPORT ROZKŁADU DANYCH (N=").append(people.size()).append(")\n");
+        sb.append(String.format("Czas generowania: %.3f s\n", durationSeconds));
         sb.append("===============================\n\n");
 
         long males = people.stream().filter(p -> p.getGender() == Gender.MALE).count();
@@ -247,7 +268,7 @@ public class MainController {
         sb.append("3. TOP 5 MIAST:\n");
         Map<String, Long> cityCounts = people.stream()
             .collect(Collectors.groupingBy(p -> p.getAddress().getCity(), Collectors.counting()));
-        
+
         cityCounts.entrySet().stream()
             .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
             .limit(5)
@@ -255,18 +276,57 @@ public class MainController {
                 sb.append(drawBar(String.format("%-15s", entry.getKey()), entry.getValue().intValue(), people.size()));
             });
 
+        sb.append("\n4. HISTORIA WYDAJNOŚCI (Czas vs Liczba rekordów):\n");
+
+        if (!performanceHistory.isEmpty()) {
+            double maxTime = performanceHistory.stream()
+                    .mapToDouble(h -> h.time)
+                    .max().orElse(0.1);
+
+            for (HistoryEntry entry : performanceHistory) {
+                sb.append(drawTimeBar(entry.count, entry.time, maxTime));
+            }
+        }
+
         return sb.toString();
+    }
+
+    private String drawTimeBar(int count, double time, double maxTime) {
+        int barMaxLength = 30;
+
+        int barLength = (maxTime > 0) ? (int) ((time / maxTime) * barMaxLength) : 0;
+
+        StringBuilder bar = new StringBuilder();
+        for (int i = 0; i < barLength; i++) bar.append("█");
+
+
+        while (bar.length() < barMaxLength) bar.append(" ");
+
+        return String.format("N=%-7d | %s | %.3f s\n", count, bar.toString(), time);
     }
 
     private String drawBar(String label, int value, int total) {
         if (total == 0) return label + ": 0\n";
         int barMaxLength = 30;
         int barLength = (int) (((double) value / total) * barMaxLength);
-        
+
         StringBuilder bar = new StringBuilder();
         for (int i = 0; i < barLength; i++) bar.append("█");
-        
+
         double percentage = ((double) value / total) * 100;
+        
+
         return String.format("%s | %-30s | %d (%.1f%%)\n", label, bar.toString(), value, percentage);
+    }
+
+
+    private static class HistoryEntry {
+        int count;
+        double time;
+
+        public HistoryEntry(int count, double time) {
+            this.count = count;
+            this.time = time;
+        }
     }
 }
