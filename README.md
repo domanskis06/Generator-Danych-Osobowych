@@ -19,21 +19,21 @@ Projekt implementuje algorytmy generowania polskich numerów identyfikacyjnych t
 
 ### 1. Generowanie realistycznych danych
 Aplikacja korzysta z ważonych słowników, co zapewnia statystyczne prawdopodobieństwo występowania imion i nazwisk zgodne z rzeczywistością.
-* **Dane osobowe:** Imiona i nazwiska dobierane na podstawie płci.
-* **Adresy:** Zachowana spójność geograficzna.
-* **Kontakt:** Adresy e-mail generowane na podstawie imienia i nazwiska; numery telefonów z prefiksami polskich operatorów.
+*  **Dane osobowe:** Imiona i nazwiska dobierane na podstawie płci.
+*  **Adresy:** Zachowana spójność geograficzna.
+*  **Kontakt:** Adresy e-mail generowane na podstawie imienia i nazwiska; numery telefonów z prefiksami polskich operatorów.
 
 ### 2. Algorytmy i walidacja
 Wszystkie numery identyfikacyjne są generowane zgodnie z oficjalnymi algorytmami:
-* **PESEL:** Zgodny z datą urodzenia i płcią, zawiera poprawną cyfrę kontrolną.
-* **NIP:** Generowany z poprawną sumą kontrolną.
-* **Numer Dowodu Osobistego:** Format (3 litery + 6 cyfr) z poprawną sumą kontrolną.
+*  **PESEL:** Zgodny z datą urodzenia i płcią, zawiera poprawną cyfrę kontrolną.
+*  **NIP:** Generowany z poprawną sumą kontrolną.
+*  **Numer Dowodu Osobistego:** Format (3 litery + 6 cyfr) z poprawną sumą kontrolną.
 
 ### 3. Eksport danych
 Możliwość zapisu wygenerowanych rekordów do formatów:
-* **CSV:** format tekstowy oddzielony średnikami.
-* **JSON:** format obiektowy.
-* **SQL:** baza danych.
+*  **CSV:** format tekstowy oddzielony średnikami.
+*  **JSON:** format obiektowy.
+*  **SQL:** baza danych.
 
 Użytkownik ma możliwość dynamicznego wyboru kolumn, które mają znaleźć się w pliku wynikowym.
 
@@ -41,13 +41,13 @@ Użytkownik ma możliwość dynamicznego wyboru kolumn, które mają znaleźć s
 Funkcja umożliwiająca celowe wprowadzanie błędów do generowanych danych w celu testowania scenariuszy negatywnych. Poziom zaszumienia regulowany jest suwakiem (0-50%).
 
 Typy generowanych błędów:
-* **Podróżnik w czasie:** Ustawienie daty urodzenia na dzień jutrzejszy lub dalszą przyszłość (symulacja błędu logicznego w systemach, np. ujemny wiek).
-* **Czeski błąd:** Losowa zamiana miejscami dwóch sąsiadujących liter w nazwisku (np. *Kowalsik* zamiast *Kowalski*).
-* **Białe znaki:** Doklejenie spacji na początku lub na końcu imienia - błąd często niewidoczny wizualnie, a powodujący problemy przy porównywaniu ciągów znaków w bazach danych.
-* **Uszkodzenie PESEL:** Wstrzyknięcie litery 'X' w losowe miejsce ciągu cyfr, co narusza format numeryczny i sumę kontrolną.
-* **Błędy formatu:** Usunięcie znaku `@` z adresu e-mail oraz celowe skracanie numerów telefonów.
-* **Błędy wielkości liter:** Zamiana liter w imieniu na małe.
-* **Brak danych:** Celowe usuwanie wartości (ustawianie `null`) dla pól opcjonalnych, takich jak numer domu czy nazwisko.
+*  **Podróżnik w czasie:** Ustawienie daty urodzenia na dzień jutrzejszy lub dalszą przyszłość (symulacja błędu logicznego w systemach, np. ujemny wiek).
+*  **Czeski błąd:** Losowa zamiana miejscami dwóch sąsiadujących liter w nazwisku (np. *Kowalsik* zamiast *Kowalski*).
+*  **Białe znaki:** Doklejenie spacji na początku lub na końcu imienia - błąd często niewidoczny wizualnie, a powodujący problemy przy porównywaniu ciągów znaków w bazach danych.
+*  **Uszkodzenie PESEL:** Wstrzyknięcie litery 'X' w losowe miejsce ciągu cyfr, co narusza format numeryczny i sumę kontrolną.
+*  **Błędy formatu:** Usunięcie znaku `@` z adresu e-mail oraz celowe skracanie numerów telefonów.
+*  **Błędy wielkości liter:** Zamiana liter w imieniu na małe.
+*  **Brak danych:** Celowe usuwanie wartości (ustawianie `null`) dla pól opcjonalnych, takich jak numer domu czy nazwisko.
 
 ---
 
