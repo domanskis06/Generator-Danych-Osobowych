@@ -27,6 +27,11 @@ public class MainView extends javax.swing.JFrame {
     private JButton exportJsonButton;
     private JButton exportSqlButton;
 
+
+    private JButton showReportButton;
+    private JDialog statsDialog;
+    private JTextArea statsTextArea;
+
     private JCheckBox noiseCheckbox;
     private JSlider noiseSlider;
 
@@ -139,6 +144,21 @@ public class MainView extends javax.swing.JFrame {
         generateButton.setAlignmentX(Component.LEFT_ALIGNMENT);
         sidePanel.add(generateButton);
 
+        sidePanel.add(Box.createRigidArea(new Dimension(0, 10)));
+
+        showReportButton = new JButton("Pokaż ostatni raport");
+        showReportButton.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        showReportButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+        showReportButton.setAlignmentX(Component.LEFT_ALIGNMENT);
+        showReportButton.setEnabled(false);
+        showReportButton.addActionListener(e -> {
+            if (statsDialog != null) {
+                statsDialog.setVisible(true);
+                statsDialog.toFront();
+            }
+        });
+        sidePanel.add(showReportButton);
+
         sidePanel.add(Box.createRigidArea(new Dimension(0, 20)));
         sidePanel.add(createTitle("Eksport"));
 
@@ -246,14 +266,30 @@ public class MainView extends javax.swing.JFrame {
     }
 
     public void showStatisticsReport(String reportText) {
-        JTextArea textArea = new JTextArea(reportText);
-        textArea.setEditable(false);
-        textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        
-        JScrollPane scrollPane = new JScrollPane(textArea);
-        scrollPane.setPreferredSize(new Dimension(600, 500));
-        
-        JOptionPane.showMessageDialog(this, scrollPane, "Raport Statystyczny", JOptionPane.INFORMATION_MESSAGE);
-    }
+        if (statsDialog == null) {
+            statsDialog = new JDialog(this, "Raport Statystyczny", false);
+            statsDialog.setSize(600, 500);
+            statsDialog.setLocationRelativeTo(this);
+            statsDialog.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
 
+            statsTextArea = new JTextArea();
+            statsTextArea.setEditable(false);
+            statsTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+
+            JScrollPane scrollPane = new JScrollPane(statsTextArea);
+            statsDialog.add(scrollPane);
+        }
+
+        statsTextArea.setText(reportText);
+        statsTextArea.setCaretPosition(0);
+
+        if (!statsDialog.isVisible()) {
+            statsDialog.setVisible(true);
+        }
+        statsDialog.toFront();
+
+        if (showReportButton != null) {
+            showReportButton.setEnabled(true);
+        }
+    }
 }
