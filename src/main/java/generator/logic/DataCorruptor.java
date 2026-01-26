@@ -17,10 +17,6 @@ public class DataCorruptor {
         }
 
         if (random.nextDouble() < chance) {
-            person.setAddress(null);
-        }
-
-        if (random.nextDouble() < chance) {
             String pesel = person.getPesel();
             if (pesel != null && pesel.length() > 6) {
                 int pos = random.nextInt(pesel.length());
