@@ -126,8 +126,6 @@ public class PersonGenerator implements Generator<Person> {
         Contact contact = new Contact();
         String generatedEmail = emailGenerator.generate(person);
         contact.setEmail(generatedEmail);
-        contact.setPhoneNumber("+48" + String.valueOf(100000000 + random.nextInt(900000000)));
-        person.setContact(contact);
 
         String prefix = "500";
         if (!mobilePrefixes.isEmpty()) {
@@ -137,6 +135,7 @@ public class PersonGenerator implements Generator<Person> {
         String suffix = String.format("%06d", random.nextInt(1000000));
 
         contact.setPhoneNumber("+48 " + prefix + suffix);
+        person.setContact(contact);
 
         return person;
     }
